@@ -1,0 +1,90 @@
+once $ s "asas"
+
+hush
+
+
+do
+panic
+resetCycles
+let melointro =
+        ( # pF "c3" ( segment 32 $ range 14 140 ( (slow 11 $ sine) * (slow 7 $ tri) * (slow 5 $ saw) ) ) ) $
+        every 4 (rev) $
+        "stiff"
+        +| (n $ scale "<phrygian hexPhrygian>/32" $ ( -- TODO: testar outras escalas para variar mais
+            "<0  [~ -3] [-1 -2] 0 >/16" +
+            "[ [0 1] [-1 -2] 0 [2 3 ~] ]"))
+        # nudge ( 678 ~> range "-0.01" 0.005 rand)
+let melomid =
+        ( # pF "c3" ( segment 32 $ range 7 120 ( (slow 7 $ sine) * (slow 11 $ tri) * (slow 7 $ saw) ) ) ) $
+        every 8 (rev) $
+        "stiff"
+        +| (n $ scale "<phrygian hexPhrygian>/32"
+        $ snowball 16 (+) (slow "[8 16]")  (
+            "<0 [0  ~ 0 -3 . -1 -2 . 0]>/16" +
+            "[ [0 1] [-1 -2] 0 [2 3 ~] ]"
+            )
+            )
+        # nudge (range "-0.005" 0.01 rand)
+let melobase =
+        -- sometimesBy 0.1 (hurry 2) $
+        every 16 (rev) $
+        "supergong"
+        +| ( n $ scale "<phrygian hexPhrygian>/16" 
+        $ soak 4 (+ ((irand 3)*3 - 4)
+        )
+        "[ [0 1] [-1 -2] 0 [2 3 ~] ]")
+        -- # decay (range 0.5 0.75 rand)
+        # nudge ( 567 ~> range "-0.0075" 0.0075 rand)
+p 2 $
+    (0.9 <~) $
+    seqPLoop
+    [
+        (0, 128,
+            whenmod 16 12 (iter 4) $
+            melointro
+            # orbit 2
+            # gain 1.0
+        )
+        ,(16, 128,
+            whenmod 32 28 (iter 8) $
+            melomid
+            # gain 1
+        )
+        ,(16, 128,
+            whenmod 64 56 (iter 16) $
+            melobase
+            # gain 0.7
+            -- # sind 0.5
+            # orbit 1
+        )
+    ]
+    -- # gain 1
+    # pan (range 0.25 0.75 rand)
+
+do
+p 2 silence
+let melobase2 =
+        ((0.9) <~) $
+        ( note $ scale "<phrygian hexPhrygian>/32" $
+        soak 3 (
+            -- ("[0.25 0.125]" ~>).
+            ( |+ "{0 -4 0 3 }%16" )
+        )
+        (
+            "{0 [0][ ~ -3] [-1 -2 ] 0}%8" + 
+            "[ [0 1] [-1 -2] 0 [2 3 ~] ]/2"
+        )
+        )
+p 3 $ seqPLoop
+    [
+        (0, 128,
+        (|+ n (scale "{phrygian hexPhrygian}%64" "{0 -4 0 4 7 3 }%64" ) ) $
+        melobase2
+        # s "supergong"
+        # decay 0.5
+        # gain 0.75
+        # orbit 3)
+    ]
+    # pan (slow 4 $ saw)
+
+p 4 $ "dummy" # tape 0.2 # orbit 1

@@ -1,0 +1,173 @@
+-- espgrid tidal
+--
+-- cpsEsp (110/60/4)
+--
+-- setcps (110/60/4)
+
+-- espgrid tidal
+-- Open Carabiner First. To Tidal Link
+
+-- sock <- carabiner tidal 4 (-0.20)
+
+-- p 1 $ " supervibe*8" |+| pan "[0 0.25 0.5 0.75]*3" # n "[0 3 5 8]*4"
+
+creise =
+    fix (spreadr ($) [density 2, rev, slow 2, striate 3, (# speed ( choose [0.75,0.5,1,1.5]) )]) (n "2 4 8 16")
+verbr x =
+    once $
+    "dummy"
+    # vwet 0.2
+    # vdry 1
+    # vdelay 0.1
+    # vsize 0.6
+    # vlocut 0.7
+    # vhicut 0.25
+    +| orbit x
+verbar = verbr "[0 1 2 3]"
+-- acid parameters
+-- cutoff
+-- reson
+-- sweept
+-- envmod
+-- envatt
+-- envdec
+-- accdec
+-- envacc
+acidcof =
+    p "acidcof" $
+    (12.6 ~>) $ 
+    acutoff (
+        ( slow 64 $ range 0.06 0.93 sine )
+        + ( slow 8 $ range "-0.06" 0.06 tri )
+        ) # "acid"
+acidres =
+    p "acidres" $
+    (64 ~>) $ 
+    areson ( slow 76 $ ( 1 - tri) ) # "dummy"
+acidenm =
+    p "acidenm" $
+    (32 ~>) $
+    aenvmod (
+        ( slow 0.5 ( range 0.5 0.75 tri) )
+        + ( slow 132 $ range "-0.5" 0.25 sine )
+    ) # "acid"
+acidatt =
+    p "acidatt" $
+    (12.6 ~>) $ 
+    aenvatt (
+        ( slow 48 $ range 0.125 0.25 saw )
+        + ( slow 4 $ range "-0.033" 0.033 tri )
+        ) # "dummy"
+aciddec =
+    p "aciddec" $
+    (12.6 ~>) $ 
+    aenvdec (
+        ( slow 96 $ range 0.086 0.97 saw )
+        + ( slow 6 $ range "-0.03" 0.03 tri )
+        ) # "dummy"
+acidacd =
+    p "acidacd" $
+    (36 ~>) $ 
+    aaccdec (
+        ( slow 112 $ range 0.086 0.97 tri )
+        + ( slow 4 $ range "-0.03" 0.03 tri )
+        ) # "acid"
+acideac =
+    p "acideac" $
+    (19.84 ~>) $ 
+    aenvacc (
+        ( slow 84 $ range 0 0.73 sine )
+        * ( slow 12 $ tri )
+        + 0.23
+        ) # "acid"
+acidmod =
+    do
+    acidcof
+    acidres
+    acidenm
+    acidatt
+    acidacd
+    acideac
+    aciddec
+stopacidmod =
+    do
+    p "acidcof" silence
+    p "acidres" silence
+    p "acidenm" silence
+    p "acidatt" silence
+    p "acidacd" silence
+    p "acideac" silence
+    p "aciddec" silence
+acidcomp =
+    once $
+    "dummy"
+    # wet10 0.5
+    # wet50 1
+    -- # slopea 0.33
+    # postAmp 2
+    # orbit 3
+acidr =
+    once $
+    "acid"
+    # acutoff 25
+    # areson 20
+    # asweept 64
+    # aenvmod 64
+    # aenvatt 12
+    # aenvdec 7
+    # aaccdec 7
+    # aenvacc 30
+submarino =
+    p "submarino" $
+        seqPLoop[
+            (0, 8,
+                "dummy"
+            ),
+            (8, 16,
+                sound "feelfx"
+                |+| n "[0!3 2]/4"
+                # tremolorate (slow 4 $ "2 8 4 3 1.5")
+                # tremolodepth 1
+                # pan (slow 5 $ "0 0.75 0.5 0.25 1”)")
+                # orbit 3
+            )
+        ]
+bassist =
+    p "modo" $
+        someCyclesBy 0.25 ((# ccv 127 ).( # ccn "[13!3 15]" )) $
+        stack [
+            "modo" # ccv (slow 16 $ range 0 127 sine) # ccn 0 -- slide
+            ,
+            "modo*1" # ccv (
+                wchoose [(0,0.75),(127,0.25)]
+                -- 96
+                )
+                # ccn 12 -- ham. on/pull off
+            ,
+            "modo*32" # ccv (slow 8 $ range 0 127 $ perlin2With (cosine) (sine) ) # ccn 9 -- mute
+            ,
+            "modo" # ccv (irand 127) # ccn 1 -- vibrato
+            -- ,
+            -- "modo/2" # ccv ( choose [1, 127] ) # ccn 64 -- let ring
+            ,
+            "modo" # ccv 127 # ccn 13 -- finger mode
+            ,
+            "modo*32" # ccv ( slow 4 (perlin2 (sine*64) + 32) ) # ccn 4 -- left hand position
+            ,
+            "modo*32" # ccv ( slow 4 $ (range 0 127 $ slow 4 $ perlin2With (cosine*2) (sine*2)) ) # ccn 3 -- pluck pos
+        ]
+        # orbit 1
+stopbassist = p "modo" silence
+-- talnoise parameters
+-- reson x = ccv x # ccn 3
+-- sweept x = ccv x # ccn 4
+-- envmod x = ccv x # ccn 5
+-- envatt x = ccv x # ccn 6
+-- envdec x = ccv x # ccn 7
+-- accdec x = ccv x # ccn 8
+-- envacc x = ccv x # ccn 9
+
+TODO: tape0 x y z w= once $ tape x # trate y
+TODO: verb away / verb front
+
+let lfo1rate = pF "lfo1rate"

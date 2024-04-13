@@ -1,0 +1,103 @@
+-- espgrid tidal
+
+hush
+
+--
+-- cpsEsp (110/60/4)
+--
+setcps (110/60/4)
+
+p 1 $
+    -- someCyclesBy 0.1 (# gain 0.4) $
+    every 16 (# gain 1.4) $
+    slow 4 $
+    "[abl, dummy]"
+    # n (
+        slow 16 $
+        -- scale ("<ritusen egyptian kumai>/8") $
+        arp "< disconverge pinkyup pinkyupdown thumbup thumbupdown >" "[e4,c4,g5,ef4,fs4]"
+    )
+    -- # att 1
+    -- # legato 0.1
+    # gain ( choose[0.4, 0.7] )
+    -- # modelay 0.2
+    -- # pitch 0.5
+    -- # pan "[0, 0.5]"
+    # orbit 3
+
+stopacidmod
+
+once $ acut 0.25
+
+p "acidcof"silence
+
+    (12.6 ~>) $
+    ( # acut (
+               ( slow 64 $ range 0.06 0.83 sine )
+               -- + ( slow 8 $ range "-0.06" 0.06 tri )
+              ) ) $
+              "dummy"
+
+p "acidres" $
+    (64 ~>) $ 
+    ( # ares ( slow 76 $ ( 1 - tri) ) ) $ "dummy"
+
+p "acidenm" $
+    (32 ~>) $
+    ( # amod (
+               ( slow 0.5 ( range 0.5 0.75 tri) )
+               + ( slow 132 $ range "-0.5" 0.25 sine )
+              ) ) $ "dummy"
+
+p "aciddec" $
+    (12.6 ~>) $ 
+    (# adec (
+               ( slow 96 $ range 0.086 0.97 saw )
+               + ( slow 6 $ range "-0.03" 0.03 tri )
+              ) ) $ "dummy"
+
+p "acideac" $
+    (19.84 ~>) $ 
+    (# aacc (
+               ( slow 84 $ range 0 0.73 sine )
+               * ( slow 12 $ tri )
+               + 0.23
+              ) ) $ "dummy"
+
+p 2 $ stack [
+        n (
+            fast ( range 0.065 2 (slow 128 sine)) (
+                scale ("<ritusen egyptian kumai>/6") $
+                arp "< converge pinkyup pinkyupdown thumbdown thumbupdown >" " [e4,c5,g4,ef4,fs4]/3")
+        )
+        # s "<dummy dummy dummy superfork>"
+        # pan (slow 24 $ sine * 0.75)
+        # gain (0.875 + range "-0.025" 0.0 rand)
+        # orbit 1
+        ,
+        n (
+            slow ( range 0.5 4 (slow 128 sine)) (
+                scale ("<ritusen egyptian kumai>/8") $
+                arp "< disconverge pinkyup pinkyupdown thumbup thumbupdown >" " [e5,c5,g5,ef5,fs5]/2")
+        )
+        # s ("<dummy supergong dummy dummy>")
+        # voice (range 0 0.5 rand)
+        # decay (range 0.5 1 rand)
+        # pan ( slow 18 $ cosine * 0.75 )
+        # gain (0.6 + range "-0.025" 0.0 rand)
+        # orbit 0
+    ]
+
+p 3 $
+    every 12 ( off 0.125 (( + note "<7 12>").(# pan (slow 1.1 $ rand))) ) $
+     superimpose (every 8 ((choose [0.125,0.065]) ~>)) $
+    degradeBy 0.1 $
+    sometimesBy 0.1 (within (6/8, 1) (fast 6) ) $
+    slow 2 $
+    -- s "bd:10(5,8)" # n (irand 4)
+    -- # nudge 0.004
+    -- , slow 8 $
+    s " ric-g*8" # n (run 8) 
+    # pan (slow 2.7 $ rand * 0.5)
+    # gain ( 0.75 + range 0 0.05 rand)
+    # orbit 1
